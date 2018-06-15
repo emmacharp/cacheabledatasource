@@ -131,12 +131,16 @@
             }
 
             // Find any associated sections for the affected section
-            $associatedSections = Symphony::Database()->fetch(sprintf('
-                SELECT DISTINCT `child_section_id`, `parent_section_id`
-                FROM `tbl_sections_association`
-                WHERE `parent_section_id` = %1$d OR `child_section_id` = %1$d',
-                $affectedSection
-            ));
+            $associatedSections = Symphony::Database()
+                ->select(['child_section_id', 'parent_section_id'])
+                ->distinct()
+                ->from('tbl_sections_association')
+                ->where(['or' => [
+                    ['parent_section_id' => $affectedSection],
+                    ['child_section_id' => $affectedSection],
+                ]])
+                ->execute()
+                ->rows();
 
             General::flattenArray($associatedSections);
             $associatedSections = array_values($associatedSections);
@@ -265,7 +269,7 @@
 
                 // Add an attribute to preg_replace later
                 $xml->setAttribute("cache-age", "fresh");
-                
+
                 // Add an attribute cache-expiration
                 $xml->setAttribute("cache-expiration", $ds->dsParamCACHE);
 
@@ -293,7 +297,7 @@
         {
             $filename = null;
 
-           
+
 
             // Checks if cacheabledatasource directory exists. If not, try to restore.
             if (!file_exists(CACHE . '/cacheabledatasource')) {
@@ -326,7 +330,7 @@
             if (!file_exists($filename)) {
                 return false;
             }
-            
+
              // Check if cache is infinite
             if ($datasource->dsParamCACHE === -1) {
                 return true;
@@ -455,7 +459,7 @@
             }
 
             $url_context = $page->getContext();
-            if (!in_array($url_context[0], array('new', 'edit'))) {
+            if (!in_array($url_context['action'], array('new', 'edit'))) {
                 return;
             }
 
@@ -463,8 +467,8 @@
 
             // if editing an existing data source, instantiate the DS object
             // to retrieve the dsParamCACHE property if it exists
-            if ($url_context[0] == 'edit') {
-                $ds = $url_context[1];
+            if ($url_context['action'] == 'edit') {
+                $ds = $url_context['handle'];
                 $dsm = new DatasourceManager(Symphony::Engine());
                 $datasource = $dsm->create($ds, null, false);
                 $cache = $datasource->dsParamCACHE;

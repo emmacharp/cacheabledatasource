@@ -43,9 +43,9 @@
 			type: 'text',
 			value: datasource.cache
 		}).appendTo(label);
-		
+
 		// Append fieldset
-		Symphony.Elements.contents.find('div.actions').before(fieldset);
+		$('#contents div.actions').before(fieldset);
 	});
 
 })(window.jQuery, window.Symphony);
