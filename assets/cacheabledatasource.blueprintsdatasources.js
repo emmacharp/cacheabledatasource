@@ -45,7 +45,7 @@
 		}).appendTo(label);
 
 		// Append fieldset
-		$('#contents div.actions').before(fieldset);
+		$('#primary').append(fieldset);
 	});
 
 })(window.jQuery, window.Symphony);
